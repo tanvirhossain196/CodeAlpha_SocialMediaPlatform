@@ -1,0 +1,1 @@
+const router=require('express').Router();const c=require('../controllers/comments.controller');const {requireAuth}=require('../middleware/auth');router.delete('/:id',requireAuth,c.remove);module.exports=router;

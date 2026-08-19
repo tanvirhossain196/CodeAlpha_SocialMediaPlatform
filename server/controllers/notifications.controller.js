@@ -1,0 +1,5 @@
+const db=require('../config/db');
+async function list(req,res,next){try{const r=await db.query(`SELECT n.id,n.type,n.post_id,n.is_read,n.created_at,u.id actor_id,u.full_name,u.username,u.avatar_url FROM notifications n LEFT JOIN users u ON u.id=n.actor_id WHERE n.user_id=$1 ORDER BY n.created_at DESC LIMIT 80`,[req.user.id]);res.json({notifications:r.rows.map(x=>({id:Number(x.id),type:x.type,postId:x.post_id?Number(x.post_id):null,isRead:x.is_read,createdAt:x.created_at,actor:{id:Number(x.actor_id),fullName:x.full_name,username:x.username,avatarUrl:x.avatar_url}}))});}catch(e){next(e)}}
+async function read(req,res,next){try{await db.query('UPDATE notifications SET is_read=true WHERE id=$1 AND user_id=$2',[Number(req.params.id),req.user.id]);res.json({message:'Notification marked as read.'});}catch(e){next(e)}}
+async function readAll(req,res,next){try{await db.query('UPDATE notifications SET is_read=true WHERE user_id=$1',[req.user.id]);res.json({message:'All notifications marked as read.'});}catch(e){next(e)}}
+module.exports={list,read,readAll};
